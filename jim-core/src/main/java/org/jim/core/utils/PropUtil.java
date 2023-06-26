@@ -1,6 +1,116 @@
 package org.jim.core.utils;
 
+import java.io.File;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * 获取配置文件属性工具类
+ */
 public class PropUtil {
 
+    private static Prop prop=null;
 
+    private static final ConcurrentHashMap<String,Prop> map=new ConcurrentHashMap();
+
+    private PropUtil(){}
+
+    public static Prop use(String fileName){
+        return use(fileName,"UTF-8");
+    }
+
+    public static Prop use(String fileName,String encode){
+        Prop result=map.get(fileName);
+        if(result==null){
+            result=new Prop(fileName,encode);
+            map.put(fileName,result);
+            if(prop==null){
+                prop=result;
+            }
+        }
+        return result;
+    }
+
+    //通过File对象创建 prop对象
+    public static Prop use(File file){
+        return use(file,"UTF-8");
+    }
+
+    public static Prop use(File file,String encode){
+        Prop result=map.get(file.getName());
+        if(result==null){
+            result=new Prop(file,encode);
+            map.put(file.getName(),result);
+            if(prop==null){
+                prop=result;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 删除当前prop对象，并删除维护concurrentHashMap集合
+     * @param fileName
+     * @return
+     */
+    public static Prop useless(String fileName){
+        Prop previous=map.remove(fileName);
+        if(previous==prop){
+            prop=null;
+        }
+        return previous;
+    }
+
+    //全部删除清空
+    public static void clear(){
+        prop=null;
+        map.clear();
+    }
+
+    public static Prop getProp(){
+        if(prop==null){
+            throw new IllegalStateException("Load propties file by invoking PropKit.use(String fileName) method first.");
+        }else{
+            return prop;
+        }
+    }
+
+    public static Prop getProp(String fileName){
+        return map.get(fileName);
+    }
+
+    public static String get(String key){
+        return getProp().get(key);
+    }
+
+    public static String get(String key,String defaultValue){
+        return getProp().get(key,defaultValue);
+    }
+
+    public static Integer getInt(String key) {
+        return getProp().getInt(key);
+    }
+
+    public static Integer getInt(String key, Integer defaultValue) {
+        return getProp().getInt(key, defaultValue);
+    }
+
+    public static Long getLong(String key) {
+        return getProp().getLong(key);
+    }
+
+    public static Long getLong(String key, Long defaultValue) {
+        return getProp().getLong(key, defaultValue);
+    }
+
+    public static Boolean getBoolean(String key) {
+        return getProp().getBoolean(key);
+    }
+
+    public static Boolean getBoolean(String key, Boolean defaultValue) {
+        return getProp().getBoolean(key, defaultValue);
+    }
+
+    public static boolean containsKey(String key) {
+        return getProp().containsKey(key);
+    }
 }
